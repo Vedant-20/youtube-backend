@@ -9,6 +9,10 @@ const tweetSchema=new Schema(
         owner:{
             type:Schema.Types.ObjectId,
             ref:'User'
+        },
+        isTweeted:{
+            type:Boolean,
+            default:true
         }
     },
     {

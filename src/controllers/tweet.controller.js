@@ -136,4 +136,17 @@ const deleteTweet=asyncHandler(async(req,res)=>{
     }
 })
 
-export {createTweet,getUserTweets,updateTweet,deleteTweet}
+
+const getAllTweets=asyncHandler(async(req,res)=>{
+    const tweets=await Tweet.find({
+        isTweeted:true
+    })
+
+    return (
+        res
+        .status(200)
+        .json(new ApiResponse(200,tweets,'All Tweets Fetched Successfully'))
+    )
+})
+
+export {createTweet,getUserTweets,updateTweet,deleteTweet,getAllTweets}
