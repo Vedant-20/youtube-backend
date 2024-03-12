@@ -245,7 +245,7 @@ const changeCurrentPassword=asyncHandler(async(req,res)=>{
 
 
 const getCurrentUser=asyncHandler(async(req,res)=>{
-    return res.status(200).json(200,req.user,'cuurent User fetched successffully')
+    return res.status(200).json(new ApiResponse(200,req.user,'cuurent User fetched successffully'))
 })
 
 
@@ -453,4 +453,28 @@ const getWatchHistory=asyncHandler(async(req,res)=>{
         .json(new ApiResponse(200,user[0].watchHistory,'Watch History Fetched Successfully'))
 })
 
-export {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails, updateUserAvatar ,updateUserCoverImage,getUserChannelProfile,getWatchHistory}
+const getUserById=asyncHandler(async(req,res)=>{
+    try {
+        const {uid}=req.params
+
+        if(!uid){
+            throw new ApiError(400,'Unable to fetch uid from params')
+        }
+
+        const user=await User.findById(uid)
+
+        if(!user){
+            throw new ApiError(400,'Cant Find USer')
+        }
+
+        return (
+            res
+            .status(200)
+            .json(new ApiResponse(200,user,'User Fetched Succesffulyy'))
+        )
+    } catch (error) {
+        throw new ApiError(400,`Internal Error ${error}`)
+    }
+})
+
+export {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails, updateUserAvatar ,updateUserCoverImage,getUserChannelProfile,getWatchHistory,getUserById}
