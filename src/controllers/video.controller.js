@@ -268,7 +268,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     
     const video = await Video.findById(videoId)
     const user = await User.findOne({
-        refreshToken: req.cookies.refreshToken,
+        refreshToken: req.cookies.refreshToken 
     })
     if (!user) {
         throw new ApiError(404, "User not found")

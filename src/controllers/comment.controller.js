@@ -59,13 +59,21 @@ const getVideoComments = asyncHandler(async (req, res) => {
                     },
                     username:{
                         $arrayElemAt:["$user.username",0]
+                    },
+                    avatar:{
+                        $arrayElemAt:["$user.avatar",0]
+                    },
+                    fullname:{
+                        $arrayElemAt:["$user.fullname",0]
                     }
                 }
             },
             {
                 $project:{
                     username:1,
+                    fullname:1,
                     content:1,
+                    avatar:1,
                     likes:1,
                     createdAt:1,
                     isLiked:1
