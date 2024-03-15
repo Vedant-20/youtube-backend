@@ -313,5 +313,30 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 })
 
 
+const getVideoByChannelId=asyncHandler(async(req,res)=>{
+    const {channelId}=req.params
 
-export {publishVideo,getAllVideos,getVideoById,updateVideoDetails,deleteVideo,togglePublishStatus}
+    const user=await User.findById(channelId)
+
+    if(!user){
+        throw new ApiError(404,"User not found")
+    }
+
+    const videos=await Video.find({
+        owner:user?._id
+    })
+
+    if (!videos || videos.length === 0) {
+        throw new ApiError(500, "Error while fetching the videos")
+    }
+
+    return(
+        res
+        .status(200)
+        .json(new ApiResponse(200,videos,"Channel Videos fetched successfully"))
+    )
+})
+
+
+
+export {publishVideo,getAllVideos,getVideoById,updateVideoDetails,deleteVideo,togglePublishStatus,getVideoByChannelId}

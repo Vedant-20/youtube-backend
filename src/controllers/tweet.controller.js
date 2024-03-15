@@ -40,15 +40,87 @@ const getUserTweets=asyncHandler(async(req,res)=>{
     // get the user id
 
     const {userId}=req.params
+    // const { page = 1, limit = 10 } = req.query;
 
     if(!userId){
         throw new ApiError(400,'User Id cannot be found from params')
     }
+
+
     // query the user tweets by id
     const userTweets=await Tweet.find({
         owner:userId
     })
 
+    //sample code start
+
+    // const pageNumber = parseInt(page);
+    // const limitOfTweets = parseInt(limit);
+    // const userTweets=await Tweet.aggregatePaginate(
+    //     Tweet.aggregate([
+    //         {
+    //             $match:{
+    //                 owner:userId
+    //             }
+    //         },
+    //         {
+    //             $lookup:{
+    //                 from:"likes",
+    //                 localField:"_id",
+    //                 foreignField:"tweet",
+    //                 as:"likes"
+    //             }
+    //         },
+    //         {
+    //             $lookup:{
+    //                 from:'users',
+    //                 localField:'owner',
+    //                 foreignField:'_id',
+    //                 as:'user'
+
+    //             }
+    //         },
+    //         {
+    //             $addFields:{
+    //                 likes:{
+    //                     $size:"$likes"
+    //                 },
+    //                 isLiked:{
+    //                     $in:[req.user?.id,"$likes.likedBy"]
+    //                 },
+    //                 username:{
+    //                     $arrayElemAt:["$user.username",0]
+    //                 },
+    //                 avatar:{
+    //                     $arrayElemAt:["$user.avatar",0]
+    //                 },
+    //                 fullname:{
+    //                     $arrayElemAt:["$user.fullname",0]
+    //                 }
+    //             }
+    //         },
+    //         {
+    //             $project:{
+    //                 username:1,
+    //                 fullname:1,
+    //                 avatar:1,
+    //                 content:1,
+    //                 likes:1,
+    //                 createdAt:1,
+    //                 isLiked:1
+    //             }
+    //         },
+    //         { 
+    //             $sort: { createdAt: -1 } // Sort by createdAt in descending order
+    //         }
+    //     ]),
+    //     { page: pageNumber, limit: limitOfTweets }
+    // );
+    // if(userTweets.length===0){
+    //     throw new ApiError(400,"No Tweets on this USer")
+    // }
+
+ 
     return (
         res
         .status(200)
