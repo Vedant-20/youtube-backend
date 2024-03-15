@@ -7,11 +7,13 @@ const app=express()
 app.use(cors({
     origin:process.env.CORS_ORIGIN,
     credentials:true,
-    allowedHeaders:[
-        'Access-Control-Allow-Origin',
-        'Content-Type',
-        'Authorization'
-    ]
+    withCredentials:true
+    
+    // allowedHeaders:[
+    //     'Access-Control-Allow-Origin',
+    //     'Content-Type',
+    //     'Authorization'
+    // ]
 
 }))
 
