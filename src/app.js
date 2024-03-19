@@ -4,17 +4,17 @@ import cookieParser from 'cookie-parser'
 
 const app=express()
 
-// app.use(cors(
-//     {
-//         origin:process.env.CORS_ORIGIN,
-//         credentials:true,
-//         exposedHeaders: '*'
+app.use(cors(
+    {
+        origin:process.env.CORS_ORIGIN,
+        credentials:true,
+        exposedHeaders: '*'
         
         
         
     
-//     }
-// ))
+    }
+))
 
 
 app.set("trust proxy", 1)
