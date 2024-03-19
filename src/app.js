@@ -8,12 +8,16 @@ const app=express()
 //     {
 //         origin:process.env.CORS_ORIGIN,
 //         credentials:true,
+//         exposedHeaders: '*'
         
         
         
     
 //     }
 // ))
+
+
+app.set("trust proxy", 1)
 
 
 
