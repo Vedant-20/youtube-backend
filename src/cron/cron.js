@@ -1,7 +1,7 @@
 import cron from "cron";
 import https from "https";
 
-const URL = "https://youtube-backend-g0ub.onrender.com";
+const URL = "https://youtube-backend-g0ub.onrender.com/api/v1/healthcheck/activeserver";
 
 const job = new cron.CronJob("*/14 * * * *", function () {
 	https

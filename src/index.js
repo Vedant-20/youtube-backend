@@ -5,11 +5,14 @@ import dotenv from 'dotenv'
 // import {DB_NAME} from './constants'
 import connectDB from "./db/index.js";
 import { app } from './app.js';
+import job from './cron/cron.js';
 
 
 dotenv.config({
     path:'./env'
 })
+
+job.start();
 
 
 connectDB()
