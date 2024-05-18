@@ -118,14 +118,12 @@ Services used for storing the data- mongoDB and cloudinary
 
   -`/videos`- GET - TTo get channel videos(logged in)
 
-
-
 ## Run Locally
 
 Clone the project
 
 ```bash
-  git clone https://github.com/AyanGairola/yt-backend.git
+  git clone https://github.com/Vedant-20/youtube-backend.git
 ```
 
 Go to the project directory
