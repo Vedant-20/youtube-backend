@@ -12,6 +12,7 @@ dotenv.config({
 });
 
 // job.start();
+// not using cron jobs due to instance hours
 
 connectDB()
   .then(() => {
