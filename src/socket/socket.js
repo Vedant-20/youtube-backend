@@ -5,9 +5,11 @@ import jwt from "jsonwebtoken";
 const userSockets = {}; // Store userId -> socketId mapping for active users
 
 export const initializeSocket = (server) => {
+  const allowedOrigins = [process.env.CORS_ORIGIN, process.env.NEW_CORS_ORIGIN].filter(Boolean);
+
   const io = new Server(server, {
     cors: {
-      origin: [process.env.CORS_ORIGIN, process.env.NEW_CORS_ORIGIN],
+      origin: allowedOrigins.length ? allowedOrigins : true,
       credentials: true,
     },
   });
