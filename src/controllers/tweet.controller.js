@@ -133,9 +133,7 @@ const updateTweet = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Cant Find Tweet");
   }
 
-  const user = await User.findOne({
-    refreshToken: req.cookies.refreshToken,
-  });
+  const user = await User.findOne(req.user?._id);
 
   if (!user) {
     throw new ApiError(400, "User not Found");
@@ -169,9 +167,7 @@ const deleteTweet = asyncHandler(async (req, res) => {
 
   const tweet = await Tweet.findById(tweetId);
 
-  const user = await User.findOne({
-    refreshToken: req.cookies.refreshToken,
-  });
+  const user = await User.findOne(req.user?._id);
   if (!user) {
     throw new ApiError(404, "User not found");
   }
@@ -213,4 +209,162 @@ const getAllTweets = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, tweets, "All Tweets Fetched Successfully"));
 });
 
-export { createTweet, getUserTweets, updateTweet, deleteTweet, getAllTweets };
+const getAllTweetsV2 = asyncHandler(async (req, res) => {
+  const tweets = await Tweet.aggregate([
+    { $match: { isTweeted: true } },
+    { $sort: { createdAt: -1 } },
+    // populate owner as a full user object
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+      },
+    },
+    { $unwind: { path: "$owner", preserveNullAndEmptyArrays: true } },
+    // lookup likes for each tweet
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "tweet",
+        as: "likes",
+      },
+    },
+    // populate users who liked (optional, keeps liked user details)
+    {
+      $lookup: {
+        from: "users",
+        localField: "likes.likedBy",
+        foreignField: "_id",
+        as: "likes.likedBy",
+      },
+    },
+    // lookup comments for each tweet and populate comment owner with minimal fields
+    {
+      $lookup: {
+        from: "comments",
+        let: { tweetId: "$_id" },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$tweet", "$$tweetId"] } } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+            },
+          },
+          { $unwind: { path: "$owner", preserveNullAndEmptyArrays: true } },
+          // lookup likes for each comment
+          {
+            $lookup: {
+              from: "likes",
+              localField: "_id",
+              foreignField: "comment",
+              as: "likes",
+            },
+          },
+          // lookup users for likedBy
+          {
+            $lookup: {
+              from: "users",
+              localField: "likes.likedBy",
+              foreignField: "_id",
+              as: "likedUsers",
+            },
+          },
+          // map likes to include likedBy with minimal user fields
+          {
+            $addFields: {
+              likes: {
+                $map: {
+                  input: { $ifNull: ["$likes", []] },
+                  as: "l",
+                  in: {
+                    _id: "$$l._id",
+                    createdAt: "$$l.createdAt",
+                    likedBy: {
+                      $let: {
+                        vars: {
+                          userDoc: {
+                            $arrayElemAt: [
+                              {
+                                $filter: {
+                                  input: { $ifNull: ["$likedUsers", []] },
+                                  as: "u",
+                                  cond: { $eq: ["$$u._id", "$$l.likedBy"] },
+                                },
+                              },
+                              0,
+                            ],
+                          },
+                        },
+                        in: {
+                          _id: "$$userDoc._id",
+                          username: "$$userDoc.username",
+                          avatar: "$$userDoc.avatar",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              content: 1,
+              createdAt: 1,
+              updatedAt: 1,
+              "owner._id": 1,
+              "owner.username": 1,
+              "owner.avatar": 1,
+              likes: 1,
+            },
+          },
+        ],
+        as: "comments",
+      },
+    },
+    // map likes.likedBy to only include minimal user info
+    {
+      $addFields: {
+        "likes.likedBy": {
+          $map: {
+            input: { $ifNull: ["$likes.likedBy", []] },
+            as: "u",
+            in: {
+              _id: "$$u._id",
+              username: "$$u.username",
+              avatar: "$$u.avatar",
+            },
+          },
+        },
+      },
+    },
+    // remove sensitive fields from owner and top-level __v (exclusion-only projection)
+    {
+      $project: {
+        "owner.password": 0,
+        "owner.refreshToken": 0,
+        "owner.__v": 0,
+        __v: 0,
+      },
+    },
+  ]);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, tweets, "All Tweets Fetched Successfully"));
+});
+
+export {
+  createTweet,
+  getUserTweets,
+  updateTweet,
+  deleteTweet,
+  getAllTweets,
+  getAllTweetsV2,
+};
