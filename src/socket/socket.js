@@ -7,7 +7,7 @@ const userSockets = {}; // Store userId -> socketId mapping for active users
 export const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: process.env.CORS_ORIGIN || process.env.NEW_CORS_ORIGIN || "*",
+      origin: [process.env.CORS_ORIGIN || process.env.NEW_CORS_ORIGIN || "*"],
       credentials: true,
     },
   });
